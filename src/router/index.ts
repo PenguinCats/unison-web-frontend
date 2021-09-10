@@ -1,11 +1,30 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import Home from '../views/Home.vue';
+import ComputeResourceFramework from '../views/ComputeResource/ComputeResourceFramework.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Home',
     component: Home,
+  },
+  {
+    path: '/resource',
+    name: 'ComputeResource',
+    component: ComputeResourceFramework,
+    redirect: '/resource/host',
+    children: [
+      {
+        path: 'host',
+        name: 'HostList',
+        component: Home,
+      },
+      {
+        path: 'instance',
+        name: 'ComputeInstance',
+        component: Home,
+      },
+    ],
   },
   {
     path: '/about',
