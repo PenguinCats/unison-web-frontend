@@ -1,15 +1,15 @@
 <template>
   <div class="background">
     <div class="logoDiv">
-      <n-grid x-gap="12" :cols="4">
+      <n-grid x-gap="30" :cols="4">
         <n-gi>
           <img :src="urcp_logo_img_url" class="logo" alt="URCP logo">
         </n-gi>
         <n-gi span="3">
-          <div>
+          <div style="text-align: left">
             <i class="web-font">衡·资源共享云平台</i>
           </div>
-          <div>
+          <div style="text-align: left">
             <i class="web-font">Unison Resource Cloud Platform</i>
           </div>
         </n-gi>
@@ -247,6 +247,5 @@ export default defineComponent({
 
   color: white;
   line-height: 50px;
-  text-align: left;
 }
 </style>
