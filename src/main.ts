@@ -7,5 +7,6 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 
-createApp(App).use(naive).use(store).use(router)
+const app = createApp(App);
+app.use(naive).use(store).use(router)
   .mount('#app');

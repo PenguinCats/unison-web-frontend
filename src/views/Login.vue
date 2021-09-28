@@ -17,9 +17,9 @@
     </div>
     <div class="loginCard">
       <div class="loginTitle">登录</div>
-      <div class="loginForm">
+      <div class="loginFormBox">
         <n-form :model="loginForm" label-placement="left" :label-width="100" size="medium"
-                :rules="rules">
+                :rules="rules" ref="loginFormRef">
           <n-form-item path="uid">
             <n-input placeholder="用户名" v-model:value="loginForm.uid" type="text" round></n-input>
           </n-form-item>
@@ -27,7 +27,7 @@
             <n-input placeholder="密码" v-model:value="loginForm.pwd" type="password"
                      show-password-on="click" round></n-input>
           </n-form-item>
-          <n-button type="primary" round style="width: 100%">登 录</n-button>
+          <n-button type="primary" round style="width: 100%" @click="normalLogin">登 录</n-button>
         </n-form>
       </div>
       <n-divider></n-divider>
@@ -63,8 +63,10 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, ref, getCurrentInstance } from 'vue';
 import { useMessage } from 'naive-ui';
+import jsSHA from 'jssha';
+import md5 from 'js-md5';
 
 const rules = {
   uid: {
@@ -79,9 +81,51 @@ const rules = {
   },
 };
 
+function uuid() {
+  const tempURL = URL.createObjectURL(new Blob());
+  const id = tempURL.toString(); // blob:https://xxx.com/b250d159-e1b6-4a87-9002-885d90033be3
+  URL.revokeObjectURL(tempURL);
+  return id.substr(id.lastIndexOf('/') + 1);
+}
+
 export default defineComponent({
   setup() {
+    const { ctx } = getCurrentInstance();
     const message = useMessage();
+    let loginLoading = ref(false);
+
+    const salt = uuid();
+    const loginFormRef = ref(null);
+    const loginForm = ref({
+      uid: '',
+      pwd: '',
+    });
+    const normalLogin = () => {
+      loginFormRef.value.validate(async (errors) => {
+        if (errors) {
+          message.error('请输入合法的账号密码');
+        } else {
+          // eslint-disable-next-line new-cap
+          const shaObj = new jsSHA('SHA-512', 'TEXT', { encoding: 'UTF8' });
+          shaObj.update(loginForm.value.pwd + md5(salt));
+          const pwdWithSalt = shaObj.getHash('HEX');
+
+          loginLoading = true;
+          const { data: result } = await ctx.$axios.post('/login', {
+            uid: loginForm.value.uid,
+            pwd: pwdWithSalt,
+            salt,
+          });
+          loginLoading = false;
+
+          if (result.code !== 200) {
+            message.error('用户名或密码错误');
+          } else {
+            message.success('登陆成功');
+          }
+        }
+      });
+    };
 
     const otherLoginMethodNotImplement = () => {
       message.warning('还没有实现，以后再说吧');
@@ -96,10 +140,11 @@ export default defineComponent({
     };
 
     return {
-      loginForm: {
-        uid: '',
-        pwd: '',
-      },
+      loginLoading,
+
+      loginFormRef,
+      loginForm,
+      normalLogin,
       rules,
       // eslint-disable-next-line global-require
       seu_login_img_url: require('../assets/seu-login.png'),
@@ -109,10 +154,9 @@ export default defineComponent({
       urcp_logo_img_url: require('../assets/logo.png'),
 
       uid() {
-        return this.$store.state.uid;
+        return ctx.$store.state.uid;
       },
 
-      otherLoginMethodNotImplement,
       seuLogin,
       qqLogin,
     };
@@ -212,7 +256,7 @@ export default defineComponent({
   margin-top: 16px;
 }
 
-.loginForm {
+.loginFormBox {
   margin: 16px auto;
   width: 80%;
 }
