@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
-// import Login from '../views/LoginTest.vue';
 import Frame from '../views/Frame/Frame.vue';
 
 const routes: Array<RouteRecordRaw> = [
@@ -35,25 +33,24 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: 'instance',
             name: 'ComputeInstance',
-            component: Home,
+            component: () => import('../views/Frame/ComputeResource/Instance.vue'),
           },
         ],
       },
       {
         path: '/inbox',
         name: 'Inbox',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "about" */ '../views/Frame/Inbox/Inbox.vue'),
+        component: () => import('../views/Frame/Inbox/Inbox.vue'),
       },
       {
         path: '/help',
         name: 'About',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "about" */ '../views/Frame/Help/Help.vue'),
+        component: () => import('../views/Frame/Help/Help.vue'),
+      },
+      {
+        path: '/user',
+        name: 'User',
+        component: () => import('../views/Frame/User/User.vue'),
       },
     ],
   },

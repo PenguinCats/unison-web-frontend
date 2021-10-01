@@ -19,15 +19,16 @@
       <div class="loginTitle">登录</div>
       <div class="loginFormBox">
         <n-form :model="loginForm" label-placement="left" :label-width="100" size="medium"
-                :rules="rules" ref="loginFormRef">
-          <n-form-item path="uid">
-            <n-input placeholder="用户名" v-model:value="loginForm.uid" type="text" round></n-input>
+                :rules="rules" ref="loginFormRef" :disabled="loginLoading">
+          <n-form-item path="uname">
+            <n-input placeholder="用户名" v-model:value="loginForm.uname" type="text" round></n-input>
           </n-form-item>
-          <n-form-item path="pwd">
-            <n-input placeholder="密码" v-model:value="loginForm.pwd" type="password"
+          <n-form-item path="upwd">
+            <n-input placeholder="密码" v-model:value="loginForm.upwd" type="password"
                      show-password-on="click" round></n-input>
           </n-form-item>
-          <n-button type="primary" round style="width: 100%" @click="normalLogin">登 录</n-button>
+          <n-button type="primary" round style="width: 100%" @click="normalLogin"
+                    :loading="loginLoading" :disabled="loginLoading">登 录</n-button>
         </n-form>
       </div>
       <n-divider></n-divider>
@@ -62,19 +63,23 @@
   </div>
 </template>
 
-<script>
-import { defineComponent, ref, getCurrentInstance } from 'vue';
-import { useMessage } from 'naive-ui';
+<script lang="ts">
+import {
+  defineComponent, ref, inject,
+} from 'vue';
+import { useStore } from 'vuex';
+import { NForm, useMessage, useLoadingBar } from 'naive-ui';
 import jsSHA from 'jssha';
-import md5 from 'js-md5';
+import { Md5 } from 'md5-typescript';
+import { useRouter } from 'vue-router';
 
 const rules = {
-  uid: {
+  uname: {
     required: true,
     message: '请输入用户名',
     trigger: 'blur',
   },
-  pwd: {
+  upwd: {
     required: true,
     message: '请输入密码',
     trigger: 'blur',
@@ -90,38 +95,48 @@ function uuid() {
 
 export default defineComponent({
   setup() {
-    const { ctx } = getCurrentInstance();
+    const store = useStore();
+    const router = useRouter();
+    // eslint-disable-next-line
+    const axios: any = inject('axios'); // inject axios
+
     const message = useMessage();
-    let loginLoading = ref(false);
+    const loadingBar = useLoadingBar();
+    const loginLoading = ref(false);
 
     const salt = uuid();
     const loginFormRef = ref(null);
     const loginForm = ref({
-      uid: '',
-      pwd: '',
+      uname: '',
+      upwd: '',
     });
     const normalLogin = () => {
-      loginFormRef.value.validate(async (errors) => {
+      (loginFormRef.value as unknown as InstanceType<typeof NForm>).validate(async (errors) => {
         if (errors) {
           message.error('请输入合法的账号密码');
         } else {
           // eslint-disable-next-line new-cap
           const shaObj = new jsSHA('SHA-512', 'TEXT', { encoding: 'UTF8' });
-          shaObj.update(loginForm.value.pwd + md5(salt));
+          shaObj.update(Md5.init(loginForm.value.upwd) + salt);
           const pwdWithSalt = shaObj.getHash('HEX');
 
-          loginLoading = true;
-          const { data: result } = await ctx.$axios.post('/login', {
-            uid: loginForm.value.uid,
-            pwd: pwdWithSalt,
+          loginLoading.value = true;
+          loadingBar.start();
+          const { data: res } = await axios.post('/auth/login_normal', {
+            uname: loginForm.value.uname,
+            upwd: pwdWithSalt,
             salt,
           });
-          loginLoading = false;
+          loadingBar.finish();
+          loginLoading.value = false;
 
-          if (result.code !== 200) {
-            message.error('用户名或密码错误');
+          if (res.code !== 200) {
+            message.error(res.msg);
           } else {
+            const { uid, authority, token } = res.data;
+            store.commit('setUserInfo', { uid, authority, token });
             message.success('登陆成功');
+            router.push('/').then();
           }
         }
       });
@@ -131,11 +146,9 @@ export default defineComponent({
       message.warning('还没有实现，以后再说吧');
     };
     const seuLogin = () => {
-      console.log('seu login');
       otherLoginMethodNotImplement();
     };
     const qqLogin = () => {
-      console.log('qq login');
       otherLoginMethodNotImplement();
     };
 
@@ -153,52 +166,11 @@ export default defineComponent({
       // eslint-disable-next-line global-require
       urcp_logo_img_url: require('../assets/logo.png'),
 
-      uid() {
-        return ctx.$store.state.uid;
-      },
-
       seuLogin,
       qqLogin,
     };
   },
 });
-
-// export default {
-//   name: 'Login',
-//   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-//   data() {
-//     return {
-//       loginForm: {
-//         uid: '',
-//         pwd: '',
-//       },
-//       rules,
-//       // eslint-disable-next-line global-require
-//       seu_login_img_url: require('../assets/seu-login.png'),
-//       // eslint-disable-next-line global-require
-//       qq_login_img_url: require('../assets/qq-login.png'),
-//     };
-//   },
-//   computed: {
-//     uid() {
-//       return this.$store.state.uid;
-//     },
-//   },
-//   methods: {
-//     otherLoginMethodNotImplement() {
-//       // this.message.warning('How many roads must a man walk down');
-//       message.warning('123');
-//     },
-//     seu_login() {
-//       console.log('seu login');
-//       this.otherLoginMethodNotImplement();
-//     },
-//     qq_login() {
-//       console.log('qq login');
-//       this.otherLoginMethodNotImplement();
-//     },
-//   },
-// };
 </script>
 
 <style scoped>
