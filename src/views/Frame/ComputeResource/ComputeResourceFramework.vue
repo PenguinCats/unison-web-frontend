@@ -41,9 +41,7 @@
 import { h, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import Server from '@vicons/tabler/Server';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import CloudServerOutlined from '@vicons/antd/CloudServerOutlined';
 import { NIcon } from 'naive-ui';
 
@@ -71,8 +69,6 @@ export default {
     const activeKey = ref('host');
     const handleMenuSelect = (value) => {
       activeKey.value = value;
-      // eslint-disable-next-line no-restricted-globals
-      console.log(value);
       router.push(value);
     };
     return {
@@ -80,11 +76,6 @@ export default {
       menuOptions,
       activeKey,
       handleMenuSelect,
-    };
-  },
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  data() {
-    return {
     };
   },
 };

@@ -38,9 +38,17 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
-        path: '/inbox',
-        name: 'Inbox',
-        component: () => import('../views/Frame/Inbox/Inbox.vue'),
+        path: '/message',
+        name: 'Message',
+        component: () => import('../views/Frame/Message/Message.vue'),
+        redirect: '/message/inbox',
+        children: [
+          {
+            path: 'inbox',
+            name: 'Inbox',
+            component: () => import('../views/Frame/Message/Inbox.vue'),
+          },
+        ],
       },
       {
         path: '/help',

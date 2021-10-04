@@ -50,7 +50,7 @@ export default {
         },
         {
           label: '站内消息',
-          key: '/inbox',
+          key: '/message',
           icon: renderIcon(AllInboxFilled),
         },
         {

@@ -131,11 +131,21 @@ export default defineComponent({
           loginLoading.value = false;
 
           if (res.code !== 200) {
-            message.error(res.msg);
+            message.error(
+              res.msg,
+              {
+                duration: 2000,
+              },
+            );
           } else {
             const { uid, authority, token } = res.data;
             store.commit('setUserInfo', { uid, authority, token });
-            message.success('登陆成功');
+            message.success(
+              '登陆成功',
+              {
+                duration: 2000,
+              },
+            );
             router.push('/').then();
           }
         }
