@@ -18,7 +18,7 @@ import { useRouter } from 'vue-router';
 import { NIcon } from 'naive-ui';
 import MailInboxAll24Regular from '@vicons/fluent/MailInboxAll24Regular';
 import ChannelAdd20Regular from '@vicons/fluent/ChannelAdd20Regular';
-import Send from '@vicons/carbon/Send';
+// import Send from '@vicons/carbon/Send';
 
 function renderIcon(icon) {
   return () => h(NIcon, null, { default: () => h(icon) });
@@ -39,11 +39,11 @@ export default defineComponent({
         key: 'inbox',
         icon: renderIcon(MailInboxAll24Regular),
       },
-      {
-        label: '已发送',
-        key: 'sent',
-        icon: renderIcon(Send),
-      },
+      // {
+      //   label: '已发送',
+      //   key: 'sent',
+      //   icon: renderIcon(Send),
+      // },
     ];
     const activeKey = ref('inbox');
     const handleMenuSelect = (value) => {

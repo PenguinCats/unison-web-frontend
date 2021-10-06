@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <n-message-provider placement="bottom">
+    <n-message-provider>
       <n-loading-bar-provider>
         <router-view></router-view>
       </n-loading-bar-provider>

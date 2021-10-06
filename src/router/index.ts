@@ -48,6 +48,11 @@ const routes: Array<RouteRecordRaw> = [
             name: 'Inbox',
             component: () => import('../views/Frame/Message/Inbox.vue'),
           },
+          {
+            path: 'write',
+            name: 'Write',
+            component: () => import('../views/Frame/Message/Write.vue'),
+          },
         ],
       },
       {

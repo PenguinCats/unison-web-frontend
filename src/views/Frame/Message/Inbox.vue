@@ -46,27 +46,28 @@ import {
 } from 'naive-ui';
 import CubeView from '@vicons/carbon/CubeView';
 import Delete from '@vicons/carbon/Delete';
+import { GetAuthTypeString, GetAuthTypeName, GetNameWithSEUID } from '@/components/userStateHelper';
 
-function getAuthTypeString(auth: number) : string {
-  switch (auth) {
-    case 1: return 'error';
-    case 2: return 'warning';
-    default: return 'info';
-  }
-}
-function getAuthTypeName(auth: number) : string {
-  switch (auth) {
-    case 1: return '超级管理员';
-    case 2: return '管理员';
-    default: return '普通用户';
-  }
-}
-function getNameWithSEUID(name: string, seuID:string) {
-  if (seuID === '') {
-    return name;
-  }
-  return `${seuID}, ${name}`;
-}
+// function getAuthTypeString(auth: number) :string {
+//   switch (auth) {
+//     case 1: return 'error';
+//     case 2: return 'warning';
+//     default: return 'info';
+//   }
+// }
+// function getAuthTypeName(auth: number) : string {
+//   switch (auth) {
+//     case 1: return '超级管理员';
+//     case 2: return '管理员';
+//     default: return '普通用户';
+//   }
+// }
+// function getNameWithSEUID(name: string, seuID:string) {
+//   if (seuID === '') {
+//     return name;
+//   }
+//   return `${seuID}, ${name}`;
+// }
 
 // eslint-disable-next-line
 function renderIcon(icon: any) {
@@ -79,6 +80,64 @@ export default defineComponent({
     // eslint-disable-next-line
     const axios: any = inject('axios'); // inject axios
     const message = useMessage();
+
+    // 表格数据及渲染
+    interface MessageProfileType {
+      id: number,
+      mid: number,
+      title: string,
+      time: string,
+      state: number,
+      // eslint-disable-next-line camelcase
+      from_user_name: string,
+      // eslint-disable-next-line camelcase
+      from_user_authority: number,
+      // eslint-disable-next-line camelcase
+      from_user_seu_id: string,
+    }
+    const MessageRows = ref(new Array<MessageProfileType>());
+
+    // 分页数据获取
+    const PaginationReactive = reactive({
+      page: 1,
+      pageCount: 1,
+      pageSize: 10,
+      itemCount: 0,
+      prefix(itemCount: never) {
+        return `总消息数 ${itemCount}.`;
+      },
+    });
+    const TableLoading = ref(true);
+    const UpdateMessageList = async () => {
+      TableLoading.value = true;
+      const { data: res } = await axios.post('/message/message_inbox_profile_list', {
+        page_size: PaginationReactive.pageSize,
+        page_number: PaginationReactive.page,
+      });
+      if (res.code !== 200) {
+        message.error(res.msg);
+      } else {
+        MessageRows.value = res.data.message_profile_list;
+        PaginationReactive.itemCount = res.data.total_number;
+      }
+      TableLoading.value = false;
+    };
+
+    // 删除消息
+    const DeleteLoading = ref(false);
+    const delMessage = async (mid: number) => {
+      DeleteLoading.value = true;
+      const { data: res } = await axios.post('/message/delete', {
+        mid,
+      });
+      if (res.code !== 200) {
+        message.error(res.msg);
+      } else {
+        message.success('删除成功');
+        await UpdateMessageList();
+      }
+      DeleteLoading.value = false;
+    };
 
     const DetailLoading = ref(false);
     const DetailShow = ref(false);
@@ -106,38 +165,41 @@ export default defineComponent({
         DetailData.value.text = res.data.text;
         DetailData.value.time = res.data.time;
         // eslint-disable-next-line max-len
-        DetailData.value.from_user_authority_type_string = getAuthTypeString(res.data.from_user_authority);
+        DetailData.value.from_user_authority_type_string = GetAuthTypeString(res.data.from_user_authority);
         // eslint-disable-next-line max-len
-        DetailData.value.from_user_authority_type_name = getAuthTypeName(res.data.from_user_authority);
-        DetailData.value.from_user_name_seu_id = getNameWithSEUID(res.data.from_user_name,
+        DetailData.value.from_user_authority_type_name = GetAuthTypeName(res.data.from_user_authority);
+        DetailData.value.from_user_name_seu_id = GetNameWithSEUID(res.data.from_user_name,
           res.data.from_user_seu_id);
+
+        await axios.post('/message/mark_read', {
+          mid,
+        });
+        await UpdateMessageList();
       }
       DetailLoading.value = false;
-      console.log(mid);
     };
 
-    // 删除该消息
-    const delMessage = async (mid: number) => {
-      console.log(mid);
-    };
-
-    // 表格数据及渲染
-    interface MessageProfileType {
-      id: number,
-      mid: number,
-      title: string,
-      time: string,
-      state: number,
-      // eslint-disable-next-line camelcase
-      from_user_name: string,
-      // eslint-disable-next-line camelcase
-      from_user_authority: number,
-      // eslint-disable-next-line camelcase
-      from_user_seu_id: string,
-    }
-    const MessageRows = ref(new Array<MessageProfileType>());
+    // 数据渲染
     const rowKey = (rowData: MessageProfileType) => rowData.id;
     const columns = [
+      {
+        title: '状态',
+        key: 'state',
+        render(row: MessageProfileType) {
+          return h(
+            NTag,
+            {
+              style: {
+                marginRight: '6px',
+              },
+              type: row.state === 1 ? 'warning' : 'success',
+            },
+            {
+              default: () => (row.state === 1 ? '未读' : '已读'),
+            },
+          );
+        },
+      },
       {
         title: '标题',
         key: 'title',
@@ -156,12 +218,7 @@ export default defineComponent({
               type: 'info',
             },
             {
-              default: () => {
-                if (row.from_user_seu_id === '') {
-                  return row.from_user_name;
-                }
-                return `${row.from_user_seu_id} , ${row.from_user_name}`;
-              },
+              default: () => GetNameWithSEUID(row.from_user_name, row.from_user_seu_id),
             },
           );
           const userAuthTag = h(
@@ -170,15 +227,11 @@ export default defineComponent({
               style: {
                 marginRight: '6px',
               },
-              type: getAuthTypeString(row.from_user_authority),
+              type: GetAuthTypeString(row.from_user_authority) as 'info',
+              // type: typeinfo,
             },
             {
-              default: () => {
-                if (row.from_user_seu_id === '') {
-                  return row.from_user_name;
-                }
-                return getAuthTypeName(row.from_user_authority);
-              },
+              default: () => GetAuthTypeName(row.from_user_authority),
             },
           );
           return [userInfoTag, userAuthTag];
@@ -199,7 +252,9 @@ export default defineComponent({
                 marginRight: '6px',
               },
               size: 'small',
-              onClick: () => showDetail(row.mid),
+              onClick: () => {
+                showDetail(row.mid);
+              },
             },
             {
               default: () => '详情',
@@ -210,7 +265,10 @@ export default defineComponent({
             NButton,
             {
               size: 'small',
-              onClick: () => delMessage(row.mid),
+              onClick: () => {
+                delMessage(row.mid);
+              },
+              loading: DeleteLoading.value,
             },
             {
               default: () => '删除',
@@ -221,33 +279,6 @@ export default defineComponent({
         },
       },
     ];
-
-    // 分页数据及渲染
-    const PaginationReactive = reactive({
-      page: 1,
-      pageCount: 1,
-      pageSize: 10,
-      itemCount: 0,
-      prefix({ itemCount }) {
-        return `总消息数 ${itemCount}.`;
-      },
-    });
-
-    const TableLoading = ref(true);
-    const UpdateMessageList = async () => {
-      TableLoading.value = true;
-      const { data: res } = await axios.post('/message/message_inbox_profile_list', {
-        page_size: PaginationReactive.pageSize,
-        page_number: PaginationReactive.page,
-      });
-      if (res.code !== 200) {
-        message.error(res.msg);
-      } else {
-        MessageRows.value = res.data.message_profile_list;
-        PaginationReactive.itemCount = res.data.total_number;
-      }
-      TableLoading.value = false;
-    };
 
     onMounted(UpdateMessageList);
 

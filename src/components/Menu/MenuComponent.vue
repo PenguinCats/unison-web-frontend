@@ -49,14 +49,14 @@ export default {
           icon: renderIcon(VirtualMachine),
         },
         {
-          label: '站内消息',
-          key: '/message',
-          icon: renderIcon(AllInboxFilled),
-        },
-        {
           label: '帮助手册',
           key: '/help',
           icon: renderIcon(HelpOutlineRound),
+        },
+        {
+          label: '站内消息',
+          key: '/message',
+          icon: renderIcon(AllInboxFilled),
         },
       ];
 
