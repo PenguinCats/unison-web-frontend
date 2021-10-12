@@ -1,6 +1,6 @@
 <template>
   <n-card>
-    <n-skeleton v-if="Loading" height="500px" :sharp="false"></n-skeleton>
+    <n-skeleton v-if="TableLoading" height="500px" :sharp="false"></n-skeleton>
     <n-data-table v-else
       min-height="400px"
       remote
@@ -100,10 +100,10 @@ export default defineComponent({
     // 分页数据获取
     const PaginationReactive = reactive({
       page: 1,
-      pageCount: 1,
+      // pageCount: 1,
       pageSize: 10,
       itemCount: 0,
-      prefix(itemCount: never) {
+      prefix(itemCount: number) {
         return `总消息数 ${itemCount}.`;
       },
     });
@@ -283,7 +283,7 @@ export default defineComponent({
     onMounted(UpdateMessageList);
 
     return {
-      Loading: TableLoading,
+      TableLoading,
       columns,
       MessageRows,
       rowKey,

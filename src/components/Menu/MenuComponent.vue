@@ -62,7 +62,7 @@ export default {
 
       if (isAdmin.value) {
         menuList.push({
-          label: '用户管理',
+          label: '用户及权限管理',
           key: '/user',
           icon: renderIcon(UserMultiple),
         });
