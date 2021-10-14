@@ -64,6 +64,19 @@ const routes: Array<RouteRecordRaw> = [
         path: '/user',
         name: 'User',
         component: () => import('../views/Frame/User/User.vue'),
+        redirect: '/user/users',
+        children: [
+          {
+            path: 'users',
+            name: 'users',
+            component: () => import('../views/Frame/User/Users.vue'),
+          },
+          {
+            path: 'permission',
+            name: 'permission',
+            component: () => import('../views/Frame/User/Permission.vue'),
+          },
+        ],
       },
     ],
   },

@@ -100,10 +100,10 @@ export default defineComponent({
     // 分页数据获取
     const PaginationReactive = reactive({
       page: 1,
-      // pageCount: 1,
       pageSize: 10,
-      itemCount: 0,
-      prefix(itemCount: number) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      prefix({ itemCount }) {
         return `总消息数 ${itemCount}.`;
       },
     });
@@ -118,6 +118,8 @@ export default defineComponent({
         message.error(res.msg);
       } else {
         MessageRows.value = res.data.message_profile_list;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         PaginationReactive.itemCount = res.data.total_number;
       }
       TableLoading.value = false;
@@ -252,6 +254,7 @@ export default defineComponent({
                 marginRight: '6px',
               },
               size: 'small',
+              type: 'info',
               onClick: () => {
                 showDetail(row.mid);
               },
@@ -265,6 +268,7 @@ export default defineComponent({
             NButton,
             {
               size: 'small',
+              type: 'error',
               onClick: () => {
                 delMessage(row.mid);
               },
