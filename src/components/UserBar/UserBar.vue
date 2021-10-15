@@ -68,6 +68,7 @@ export default defineComponent({
     const handleDropdownSelect = (key: string) => {
       if (key === 'logout') {
         store.commit('clearUserInfo');
+        sessionStorage.clear();
         router.push('/login');
       } else if (key === 'profile') {
         console.log('TODO');

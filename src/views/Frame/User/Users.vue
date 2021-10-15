@@ -19,7 +19,7 @@ import {
   defineComponent, inject, onMounted, reactive, ref, h,
 } from 'vue';
 import {
-  NButton, NTag, NIcon, NPopconfirm, useMessage, useDialog,
+  NButton, NTag, NIcon, useMessage, useDialog,
 } from 'naive-ui';
 import EditNoteRound from '@vicons/material/EditNoteRound';
 import Delete from '@vicons/carbon/Delete';
@@ -128,6 +128,34 @@ export default defineComponent({
               default: () => GetAuthTypeName(row.authority),
             },
           );
+        },
+      },
+      {
+        title: '权限组',
+        key: 'permission_group',
+        render(row: UsersListItemType) {
+          if (!row.permission_group) {
+            return '— —';
+          }
+          // eslint-disable-next-line
+          // @ts-ignore
+          const tags = [];
+          row.permission_group.forEach((value) => {
+            tags.push(h(
+              NTag,
+              {
+                style: {
+                  marginRight: '2px',
+                },
+                type: 'info',
+              }, {
+                default: () => value.group_name,
+              },
+            ));
+          });
+          // eslint-disable-next-line
+          // @ts-ignore
+          return tags;
         },
       },
       {

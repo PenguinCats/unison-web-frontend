@@ -11,7 +11,19 @@
 </template>
 
 <script>
+export default {
+  name: 'APP',
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  created() {
+    if (sessionStorage.getItem('store')) {
+      this.$store.replaceState({ ...this.$store.state, ...JSON.parse(sessionStorage.getItem('store')) });
+    }
 
+    window.addEventListener('beforeunload', () => {
+      sessionStorage.setItem('store', JSON.stringify(this.$store.state));
+    });
+  },
+};
 </script>
 
 <style lang="less">
