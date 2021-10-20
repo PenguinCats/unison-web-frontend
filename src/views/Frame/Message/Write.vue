@@ -59,21 +59,32 @@ export default defineComponent({
     const FormRef = ref(null);
 
     const rules = {
-      toUids: {
-        validate: (rule: never, value: Array<number>) => value.length > 0,
-        trigger: 'blur',
-        message: '至少有一个收件人',
-      },
-      title: {
-        required: true,
-        trigger: 'blur',
-        message: '标题不能为空',
-      },
-      text: {
-        required: true,
-        trigger: 'blur',
-        message: '正文不能为空',
-      },
+      toUids: [
+        {
+          required: true,
+          validator: (rule: never, value: Array<number>) => {
+            if (!value || value.length > 0) {
+              return new Error('至少有一个收件人');
+            }
+            return true;
+          },
+          trigger: 'blur',
+        },
+      ],
+      title: [
+        {
+          required: true,
+          trigger: 'blur',
+          message: '标题不能为空',
+        },
+      ],
+      text: [
+        {
+          required: true,
+          trigger: 'blur',
+          message: '正文不能为空',
+        },
+      ],
     };
 
     const messageForm = ref({

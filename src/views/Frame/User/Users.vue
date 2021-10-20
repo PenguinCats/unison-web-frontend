@@ -1,16 +1,24 @@
 <template>
   <n-card>
-    <n-data-table
-        min-height="400px"
-        remote
-        ref="table"
-        :columns="columns"
-        :data="UsersRows"
-        :loading="TableLoading"
-        :pagination="PaginationReactive"
-        :row-key="rowKey"
-        @update:page="UpdateUsersList"
+    <n-space vertical>
+      <div style="text-align: right">
+        <n-button @click="userAddHandler" type="primary">新增用户</n-button>
+      </div>
+      <n-data-table
+      min-height="400px"
+      remote
+      ref="table"
+      :columns="columns"
+      :data="UsersRows"
+      :loading="TableLoading"
+      :pagination="PaginationReactive"
+      :row-key="rowKey"
+      @update:page="UpdateUsersList"
     />
+    </n-space>
+
+    <n-divider></n-divider>
+
   </n-card>
 </template>
 
@@ -24,7 +32,7 @@ import {
 import EditNoteRound from '@vicons/material/EditNoteRound';
 import Delete from '@vicons/carbon/Delete';
 import { GetAuthTypeName, GetAuthTypeString } from '@/components/userStateHelper';
-
+import UserAdd from './UserAdd.vue';
 // eslint-disable-next-line
 function renderIcon(icon: any) {
   return () => h(NIcon, null, { default: () => h(icon) });
@@ -193,7 +201,8 @@ export default defineComponent({
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     d.loading = true;
-                    return new Promise((resolve) => DeleteUser(row.uid).then(resolve));
+                    // eslint-disable-next-line
+                    return new Promise((resolve) => DeleteUser(row.uid).then(UpdateUsersList).then(resolve));
                   },
                 });
               },
@@ -260,6 +269,24 @@ export default defineComponent({
 
     onMounted(UpdateUsersList);
 
+    // user add
+    const userAddComponent = UserAdd;
+    const userAddDialog = dialog;
+    const userAddHandler = async () => {
+      userAddDialog.warning({
+        bordered: true,
+        title: '新增用户',
+        content: () => h(
+          userAddComponent, {
+            onDialogUserAddDone: () => {
+              userAddDialog.destroyAll();
+              UpdateUsersList();
+            },
+          },
+        ),
+      });
+    };
+
     return {
       TableLoading,
       columns,
@@ -268,6 +295,8 @@ export default defineComponent({
       PaginationReactive,
 
       UpdateUsersList,
+
+      userAddHandler,
     };
   },
 });

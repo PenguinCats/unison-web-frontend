@@ -39,13 +39,8 @@ export default defineComponent({
         key: 'permission',
         icon: renderIcon(AdminPanelSettingsOutlined),
       },
-      // {
-      //   label: '已发送',
-      //   key: 'sent',
-      //   icon: renderIcon(Send),
-      // },
     ];
-    const activeKey = ref('inbox');
+    const activeKey = ref('users');
     const handleMenuSelect = (value) => {
       activeKey.value = value;
       router.push(value);
