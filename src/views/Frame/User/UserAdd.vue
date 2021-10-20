@@ -86,7 +86,7 @@ interface permissionGroupType {
 
 export default defineComponent({
   name: 'UserAdd',
-  emits: ['dialog-user-add-done', 'click'],
+  emits: ['dialog-user-add-done'],
   setup(props, context) {
     const store = useStore();
     const message = useMessage();
