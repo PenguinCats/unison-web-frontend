@@ -31,8 +31,10 @@ import {
 } from 'naive-ui';
 import EditNoteRound from '@vicons/material/EditNoteRound';
 import Delete from '@vicons/carbon/Delete';
+import { useStore } from 'vuex';
 import { GetAuthTypeName, GetAuthTypeString } from '@/components/userStateHelper';
 import UserAdd from './UserAdd.vue';
+import UserEdit from './UserEdit.vue';
 // eslint-disable-next-line
 function renderIcon(icon: any) {
   return () => h(NIcon, null, { default: () => h(icon) });
@@ -45,6 +47,7 @@ export default defineComponent({
     const axios: any = inject('axios'); // inject axios
     const message = useMessage();
     const dialog = useDialog();
+    const store = useStore();
 
     // user list 数据
     interface PermissionGroup {
@@ -103,6 +106,45 @@ export default defineComponent({
         message.error(res.msg);
       }
     };
+
+    // user add
+    const userAddComponent = UserAdd;
+    const userAddDialog = dialog;
+    const userAddHandler = async () => {
+      userAddDialog.warning({
+        bordered: true,
+        title: '新增用户',
+        content: () => h(
+          userAddComponent, {
+            onDialogUserAddDone: () => {
+              userAddDialog.destroyAll();
+              UpdateUsersList();
+            },
+          },
+        ),
+      });
+    };
+
+    // user edit
+    const userEditComponent = UserEdit;
+    const userEditDialog = dialog;
+    const userEditHandler = async (uid: number) => {
+      userEditDialog.warning({
+        bordered: true,
+        title: '编辑用户',
+        content: () => h(
+          userEditComponent, {
+            uid,
+            onDialogUserAddDone: () => {
+              userEditDialog.destroyAll();
+              UpdateUsersList();
+            },
+          },
+        ),
+      });
+    };
+
+    onMounted(UpdateUsersList);
 
     // 渲染相关
     const rowKey = (rowData: UsersListItemType) => rowData.uid;
@@ -170,6 +212,15 @@ export default defineComponent({
         title: '操作',
         key: 'operation',
         render(row: UsersListItemType) {
+          if (row.authority <= store.state.authority || row.uid === store.state.uid) {
+            return h(
+              NTag, {
+                type: 'warning',
+              }, {
+                default: () => '无权操作',
+              },
+            );
+          }
           const userEditBtn = h(
             NButton,
             {
@@ -178,9 +229,9 @@ export default defineComponent({
               },
               size: 'small',
               type: 'warning',
-              // onClick: () => {
-              //   showDetail(row.mid);
-              // },
+              onClick: () => {
+                userEditHandler(row.uid);
+              },
             },
             {
               default: () => '编辑',
@@ -266,26 +317,6 @@ export default defineComponent({
         },
       },
     ];
-
-    onMounted(UpdateUsersList);
-
-    // user add
-    const userAddComponent = UserAdd;
-    const userAddDialog = dialog;
-    const userAddHandler = async () => {
-      userAddDialog.warning({
-        bordered: true,
-        title: '新增用户',
-        content: () => h(
-          userAddComponent, {
-            onDialogUserAddDone: () => {
-              userAddDialog.destroyAll();
-              UpdateUsersList();
-            },
-          },
-        ),
-      });
-    };
 
     return {
       TableLoading,
