@@ -70,11 +70,6 @@ const rules = {
     message: '请选择权限',
     trigger: 'blur',
   },
-  password: {
-    required: true,
-    message: '请输入密码',
-    trigger: 'blur',
-  },
 };
 
 interface permissionGroupType {

@@ -31,10 +31,12 @@ import {
 } from 'naive-ui';
 import EditNoteRound from '@vicons/material/EditNoteRound';
 import Delete from '@vicons/carbon/Delete';
+import Password from '@vicons/carbon/Password';
 import { useStore } from 'vuex';
 import { GetAuthTypeName, GetAuthTypeString } from '@/components/userStateHelper';
 import UserAdd from './UserAdd.vue';
 import UserEdit from './UserEdit.vue';
+import UserEditPwd from './UserEditPwd.vue';
 // eslint-disable-next-line
 function renderIcon(icon: any) {
   return () => h(NIcon, null, { default: () => h(icon) });
@@ -135,9 +137,27 @@ export default defineComponent({
         content: () => h(
           userEditComponent, {
             uid,
-            onDialogUserAddDone: () => {
+            onDialogUserEditDone: () => {
               userEditDialog.destroyAll();
               UpdateUsersList();
+            },
+          },
+        ),
+      });
+    };
+
+    // user edit password
+    const userEditPwdComponent = UserEditPwd;
+    const userEditPwdDialog = dialog;
+    const userEditPwdHandler = async (uid: number) => {
+      userEditPwdDialog.warning({
+        bordered: true,
+        title: '编辑用户',
+        content: () => h(
+          userEditPwdComponent, {
+            uid,
+            onDialogUserEditPwdDone: () => {
+              userEditPwdDialog.destroyAll();
             },
           },
         ),
@@ -212,7 +232,7 @@ export default defineComponent({
         title: '操作',
         key: 'operation',
         render(row: UsersListItemType) {
-          if (row.authority <= store.state.authority || row.uid === store.state.uid) {
+          if (row.authority <= store.state.authority && row.uid !== store.state.uid) {
             return h(
               NTag, {
                 type: 'warning',
@@ -221,6 +241,7 @@ export default defineComponent({
               },
             );
           }
+          const renderList = [];
           const userEditBtn = h(
             NButton,
             {
@@ -238,31 +259,59 @@ export default defineComponent({
               icon: renderIcon(EditNoteRound),
             },
           );
-          const userDelBtn = h(
+          renderList.push(userEditBtn);
+
+          const userEditPwdBtn = h(
             NButton,
             {
+              style: {
+                marginRight: '6px',
+              },
               size: 'small',
-              type: 'error',
+              type: 'warning',
               onClick: () => {
-                const d = dialog.warning({
-                  title: '删除用户确认',
-                  content: `确认删除用户 ${row.username} ${row.name} 吗？`,
-                  positiveText: '确定',
-                  onPositiveClick: () => {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    d.loading = true;
-                    // eslint-disable-next-line
-                    return new Promise((resolve) => DeleteUser(row.uid).then(UpdateUsersList).then(resolve));
-                  },
-                });
+                userEditPwdHandler(row.uid);
               },
             },
             {
-              default: () => '删除',
-              icon: renderIcon(Delete),
+              default: () => '修改密码',
+              icon: renderIcon(Password),
             },
           );
+          renderList.push(userEditPwdBtn);
+
+          if (row.uid !== store.state.uid) {
+            const userDelBtn = h(
+              NButton,
+              {
+                size: 'small',
+                type: 'error',
+                style: {
+                  marginRight: '6px',
+                },
+                onClick: () => {
+                  const d = dialog.warning({
+                    title: '删除用户确认',
+                    content: `确认删除用户 ${row.username} ${row.name} 吗？`,
+                    positiveText: '确定',
+                    onPositiveClick: () => {
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
+                      d.loading = true;
+                      // eslint-disable-next-line
+                      return new Promise((resolve) => DeleteUser(row.uid).then(UpdateUsersList).then(resolve));
+                    },
+                  });
+                },
+              },
+              {
+                default: () => '删除',
+                icon: renderIcon(Delete),
+              },
+            );
+            renderList.push(userDelBtn);
+          }
+
           // const userDel = h(
           //   NPopconfirm,
           //   {
@@ -313,7 +362,7 @@ export default defineComponent({
           //     ),
           //   },
           // );
-          return [userEditBtn, userDelBtn];
+          return renderList;
         },
       },
     ];
