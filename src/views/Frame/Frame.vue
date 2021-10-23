@@ -26,7 +26,7 @@
 import { defineComponent } from 'vue';
 
 import MenuComponent from '@/components/Menu/MenuComponent.vue';
-import UserComponent from '@/components/UserBar/UserBar.vue';
+import UserComponent from '@/components/Account/UserBar.vue';
 
 export default defineComponent({
   name: 'Frame',

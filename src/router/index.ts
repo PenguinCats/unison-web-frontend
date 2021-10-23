@@ -78,6 +78,11 @@ const routes: Array<RouteRecordRaw> = [
           },
         ],
       },
+      {
+        path: '/account',
+        name: 'Account',
+        component: () => import('../components/Account/MyInfo.vue'),
+      },
     ],
   },
   {

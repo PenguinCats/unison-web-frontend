@@ -71,7 +71,7 @@ export default defineComponent({
         sessionStorage.clear();
         router.push('/login');
       } else if (key === 'profile') {
-        console.log('TODO');
+        router.push('/account');
       }
     };
 
