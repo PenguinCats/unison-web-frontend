@@ -32,6 +32,7 @@
           <n-tag type="info" round size="large">{{ profileForm.seu_id }}</n-tag>
         </n-form-item>
         <n-form-item path="permission_groups" label="权限组">
+          <i v-if="permission_groups.length === 0">{{'— —'}}</i>
           <n-tag type="info" size="large" class="tag_permission_tag"
                  v-for="item in permission_groups" v-bind:key="item.gid">{{item.gname}}</n-tag>
         </n-form-item>
@@ -93,17 +94,19 @@ export default defineComponent({
       if (resPermission.code !== 200) {
         message.warning(resPermission.msg);
       }
-      console.log(resPermission);
-      const permissionGroups = [];
-      // eslint-disable-next-line guard-for-in
-      for (let k = 0; k < resPermission.data.gids.length; k += 1) {
-        permissionGroups.push({
-          gid: resPermission.data.gids[k],
-          gname: resPermission.data.gnames[k],
-        });
+      if (resPermission.data.gids) {
+        const permissionGroups = [];
+        // eslint-disable-next-line guard-for-in
+        for (let k = 0; k < resPermission.data.gids.length; k += 1) {
+          permissionGroups.push({
+            gid: resPermission.data.gids[k],
+            gname: resPermission.data.gnames[k],
+          });
+        }
+        permission_groups.value = permissionGroups;
+      } else {
+        permission_groups.value = [];
       }
-      permission_groups.value = permissionGroups;
-
       profileLoading.value = false;
     });
 
