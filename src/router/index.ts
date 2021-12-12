@@ -61,20 +61,30 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../views/Frame/Help/Help.vue'),
       },
       {
-        path: '/user',
-        name: 'User',
-        component: () => import('../views/Frame/User/User.vue'),
-        redirect: '/user/users',
+        path: '/setting',
+        name: 'Setting',
+        component: () => import('../views/Frame/Setting/Setting.vue'),
+        redirect: '/setting/users',
         children: [
           {
             path: 'users',
             name: 'users',
-            component: () => import('../views/Frame/User/Users.vue'),
+            component: () => import('../views/Frame/Setting/User/Users.vue'),
           },
           {
             path: 'permission',
             name: 'permission',
-            component: () => import('../views/Frame/User/Permission.vue'),
+            component: () => import('../views/Frame/Setting/Permission/Permission.vue'),
+          },
+          {
+            path: 'permission_hosts/:gid',
+            name: 'permission_hosts',
+            component: () => import('../views/Frame/Setting/Permission/PermissionGroupHostEdit.vue'),
+          },
+          {
+            path: 'hosts',
+            name: 'hosts',
+            component: () => import('../views/Frame/Setting/Host/Host.vue'),
           },
         ],
       },

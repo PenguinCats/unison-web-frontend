@@ -18,6 +18,8 @@ import { useRouter } from 'vue-router';
 import { NIcon } from 'naive-ui';
 import AdminPanelSettingsOutlined from '@vicons/material/AdminPanelSettingsOutlined';
 import UserProfile from '@vicons/carbon/UserProfile';
+import Server from '@vicons/tabler/Server';
+
 // import Send from '@vicons/carbon/Send';
 
 function renderIcon(icon) {
@@ -25,7 +27,7 @@ function renderIcon(icon) {
 }
 
 export default defineComponent({
-  name: 'User',
+  name: 'Setting',
   setup() {
     const router = useRouter();
     const menuOptions = [
@@ -39,11 +41,16 @@ export default defineComponent({
         key: 'permission',
         icon: renderIcon(AdminPanelSettingsOutlined),
       },
+      {
+        label: '主机列表',
+        key: 'hosts',
+        icon: renderIcon(Server),
+      },
     ];
     const activeKey = ref('users');
     const handleMenuSelect = (value) => {
       activeKey.value = value;
-      router.push(value);
+      router.push(`/setting/${value}`);
     };
     return {
       menuOptions,

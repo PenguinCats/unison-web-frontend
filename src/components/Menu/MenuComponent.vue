@@ -19,7 +19,7 @@ import AllInboxFilled from '@vicons/material/AllInboxFilled';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import HelpOutlineRound from '@vicons/material/HelpOutlineRound';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import UserMultiple from '@vicons/carbon/UserMultiple';
+import SettingOutlined from '@vicons/antd/SettingOutlined';
 
 import { NIcon } from 'naive-ui';
 
@@ -62,9 +62,9 @@ export default {
 
       if (isAdmin.value) {
         menuList.push({
-          label: '用户及权限管理',
-          key: '/user',
-          icon: renderIcon(UserMultiple),
+          label: '系统管理',
+          key: '/setting',
+          icon: renderIcon(SettingOutlined),
         });
       }
 

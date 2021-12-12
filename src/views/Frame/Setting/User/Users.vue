@@ -1,7 +1,7 @@
 <template>
   <n-card>
     <n-space vertical>
-      <div style="text-align: right">
+      <div style="text-align: left">
         <n-button @click="userAddHandler" type="primary">新增用户</n-button>
       </div>
       <n-data-table
@@ -16,9 +16,6 @@
       @update:page="UpdateUsersList"
     />
     </n-space>
-
-    <n-divider></n-divider>
-
   </n-card>
 </template>
 

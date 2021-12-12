@@ -48,7 +48,7 @@ import {
 } from 'vue';
 import { useStore } from 'vuex';
 import { useDialog, useMessage } from 'naive-ui';
-import UserEditPwd from '@/views/Frame/User/UserEditPwd.vue';
+import UserEditPwd from '@/views/Frame/Setting/User/UserEditPwd.vue';
 
 interface permissionGroupType {
   gid: number,
