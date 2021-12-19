@@ -81,7 +81,7 @@ export default defineComponent({
       const { data: res } = await axios.post('/host/all_list');
       if (res.code !== 200) {
         message.error(res.msg);
-      } else {
+      } else if (res.data.hosts) {
         HostRows.value = res.data.hosts;
       }
       TableLoading.value = false;
@@ -112,14 +112,15 @@ export default defineComponent({
       HostAddTokenLoading.value = false;
     };
 
-    const deleteHost = async (hid: number) => {
-      message.error('功能暂未实现');
-      // const { data: res } = await axios.post('/permission/delete', {
-      //   gid,
-      // });
-      // if (res.code !== 200) {
-      //   message.error(res.msg);
-      // }
+    const deleteHost = async (hostUUID: string) => {
+      const { data: res } = await axios.post('/host/delete', {
+        host_uuid: hostUUID,
+      });
+      if (res.code !== 200) {
+        message.error(`删除主机指令生成失败： ${res.msg}`);
+      } else {
+        message.success('删除主机指令生成成功，请数秒后刷新查看');
+      }
     };
 
     const hostUpdateExtComponent = HostUpdateExt;
@@ -407,7 +408,7 @@ export default defineComponent({
                     // @ts-ignore
                     d.loading = true;
                     // eslint-disable-next-line
-                    return new Promise((resolve) => deleteHost(row.hid).then(getHostsList).then(resolve));
+                    return new Promise((resolve) => deleteHost(row.host_uuid).then(getHostsList).then(resolve));
                   },
                 });
               },
