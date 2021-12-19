@@ -70,6 +70,7 @@ interface hostItemType {
 export default defineComponent({
   name: 'Host',
   setup() {
+    // eslint-disable-next-line
     const axios: any = inject('axios'); // inject axios
     const message = useMessage();
     const dialog = useDialog();
