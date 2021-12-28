@@ -38,6 +38,11 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
+        path: '/create/:uuid',
+        name: 'CreateContainerInstance',
+        component: () => import('../views/Frame/ComputeResource/CreateContainer.vue'),
+      },
+      {
         path: '/message',
         name: 'Message',
         component: () => import('../views/Frame/Message/Message.vue'),

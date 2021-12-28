@@ -1,7 +1,7 @@
 <template>
   <n-card title="授权主机列表" style="min-height: 600px">
     <template #header-extra>
-      <n-tag>若未找到所需主机，可能是因为该账户无权访问或系统异常，请联系管理员</n-tag>
+      <n-tag type="warning">若未找到所需主机，可能是因为该账户无权访问或系统异常，请联系管理员</n-tag>
     </template>
     <n-divider></n-divider>
     <n-skeleton text v-if="InitLoading" :repeat="15" />
@@ -15,7 +15,7 @@
           <template #header-extra>{{ host.ext }}</template>
           <div style="text-align: left">
             <n-space vertical>
-              <n-thing>
+              <n-thing style="margin-left: 32px">
                 <n-grid :cols="4">
                   <n-grid-item :span="2">
                     <n-tag size="small" type="info" class="infoTag">CPU 型号</n-tag>
@@ -30,8 +30,8 @@
                     {{ host.logical_core_cnt }}
                   </n-grid-item>
                 </n-grid>
-              </n-thing>
-              <n-thing>
+              </n-thing >
+              <n-thing style="margin-left: 32px">
                 <n-grid :cols="4">
                   <n-grid-item>
                     <n-tag size="small" type="info" class="infoTag">Platform Family</n-tag>
@@ -51,7 +51,7 @@
                   </n-grid-item>
                 </n-grid>
               </n-thing>
-              <n-thing v-if="HostStatus[idx]">
+              <n-thing v-if="HostStatus[idx]"  style="margin-left: 32px">
                 <n-thing v-if="HostStatus[idx].stats !== 'online'">
                   <n-tag size="small" type="error" class="infoTag">
                     状态
@@ -93,9 +93,13 @@
                       <n-space vertical>
                         <n-thing v-for="(img, img_idx) in host.images" :key="img_idx">
                           <n-tag size="small" type="info" class="infoTag">镜像名</n-tag>
-                          {{ img.name }}
+                          <span style="width: 500px; display: inline-block">
+                            {{ img.name }}
+                          </span>
                           <n-tag size="small" type="info" class="infoTag">镜像大小 (MB)</n-tag>
-                          {{ (img.size / 1048576).toFixed(2) }}
+                          <span style="width: 200px; display: inline-block">
+                            {{ (img.size / 1048576).toFixed(2) }}
+                          </span>
                           <n-tag size="small" type="info" class="infoTag">镜像创建日期</n-tag>
                           {{ img.created_time }}
                         </n-thing>
@@ -105,6 +109,9 @@
                   </template>
                 </n-collapse-item>
               </n-collapse>
+              <n-button type="primary" size="medium" style="margin-left: 32px"
+                        :disabled="!HostStatus[idx] || HostStatus[idx].stats !== 'online'"
+                        @click="CreateResourceInstance(host.host_uuid)">在此主机上创建计算实例</n-button>
             </n-space>
           </div>
         </n-collapse-item>
@@ -118,6 +125,7 @@ import {
   defineComponent, inject, onMounted, ref,
 } from 'vue';
 import { useMessage } from 'naive-ui';
+import { useRouter } from 'vue-router';
 
 interface hostImageItem {
   name: string
@@ -171,6 +179,7 @@ export default defineComponent({
     // eslint-disable-next-line
     const axios: any = inject('axios'); // inject axios
     const message = useMessage();
+    const router = useRouter();
 
     // initLoading
     const InitLoading = ref(true);
@@ -206,8 +215,8 @@ export default defineComponent({
     };
 
     const init = async () => {
-      await getHostsList().then(() => {
-        getHostStatus();
+      await getHostsList().then(async () => {
+        await getHostStatus();
       }).then(() => {
         InitLoading.value = false;
       });
@@ -230,12 +239,18 @@ export default defineComponent({
       }
     };
 
+    const CreateResourceInstance = async (uuid: string) => {
+      const path = `/create/${uuid}`;
+      await router.push(path);
+    };
+
     return {
       InitLoading,
       HostRows,
       HostStatus,
       HostUUIDs,
       GetHostImage,
+      CreateResourceInstance,
     };
   },
 });
