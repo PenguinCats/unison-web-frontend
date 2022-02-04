@@ -168,8 +168,10 @@
         </n-radio-group>
       </n-thing>
     </n-card>
-    <n-button type="primary" size="large">确定创建</n-button>
+    <n-button type="primary" size="large" @click="CreateContainer">确定创建</n-button>
   </template>
+  <CreateContainerOperation v-if="OperationResultShown" style="width: 80%"
+                            :cid="CID" :id="OperationID"></CreateContainerOperation>
 </template>
 
 <script lang="ts">
@@ -178,6 +180,7 @@ import {
 } from 'vue';
 import { useRoute } from 'vue-router';
 import { useMessage } from 'naive-ui';
+import CreateContainerOperation from '@/views/Frame/ComputeResource/CreateContainerOperation.vue';
 
 interface hostImageItem {
   name: string
@@ -222,6 +225,7 @@ interface hostItemStatus {
 
 export default defineComponent({
   name: 'CreateContainer',
+  components: { CreateContainerOperation },
   setup() {
     // eslint-disable-next-line
     const axios: any = inject('axios'); // inject axios
@@ -288,6 +292,36 @@ export default defineComponent({
     const FormUDPTags = ref<number[]>([]);
     const FormImageName = ref<string>('');
 
+    const OperationResultShown = ref(false);
+    const OperationID = ref(0);
+    const CID = ref(0);
+
+    const CreateContainer = async () => {
+      if (FormImageName.value === '') {
+        message.error('请选择所需镜像后再创建计算实例');
+        return;
+      }
+
+      const { data: res } = await axios.post('/container/create', {
+        slave_uuid: uuid,
+        image_name: FormImageName.value,
+        exposed_tcp_ports: FormTCPTags.value,
+        exposed_udp_ports: FormUDPTags.value,
+        core_cnt: FormCPU.value,
+        mem_size: FormMem.value,
+        storage_size: FormStorage.value,
+      });
+
+      if (res.code !== 200) {
+        message.error(res.msg);
+      } else if (res.data.operation_id) {
+        OperationID.value = res.data.operation_id;
+        CID.value = res.data.cid;
+        OperationResultShown.value = true;
+        // await router.push(`/create_result/${operationID}`);
+      }
+    };
+
     return {
       isInitLoading,
       Host,
@@ -300,6 +334,12 @@ export default defineComponent({
       FormTCPTags,
       FormUDPTags,
       FormImageName,
+
+      OperationResultShown,
+      OperationID,
+      CID,
+
+      CreateContainer,
     };
   },
 });
